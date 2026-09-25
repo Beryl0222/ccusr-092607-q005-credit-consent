@@ -1,0 +1,5 @@
+[project]
+name = "credit-consent"
+version = "0.1.0"
+description = "支付信贷授权穿透账领域契约"
+requires-python = ">=3.11"

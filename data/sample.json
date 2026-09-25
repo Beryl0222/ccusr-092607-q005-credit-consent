@@ -1,0 +1,9 @@
+{
+  "event_id": "092601-005-sample-001",
+  "event_type": "INTENT_CREATED",
+  "aggregate_type": "payment_intent",
+  "aggregate_id": "credit_consent-001",
+  "occurred_at": "2026-09-25T10:00:00+08:00",
+  "version": 1,
+  "payload": {}
+}

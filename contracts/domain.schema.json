@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "支付信贷授权穿透账领域事件",
+  "type": "object",
+  "required": [
+    "event_id",
+    "event_type",
+    "aggregate_type",
+    "aggregate_id",
+    "occurred_at",
+    "version",
+    "payload"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "INTENT_CREATED",
+        "OFFER_PRESENTED",
+        "CONSENT_CAPTURED",
+        "FUNDS_DISBURSED",
+        "DISPUTE_OPENED"
+      ]
+    },
+    "aggregate_type": {
+      "type": "string",
+      "enum": [
+        "payment_intent",
+        "credit_offer",
+        "consent_record",
+        "fund_obligation"
+      ]
+    },
+    "aggregate_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "payload": {
+      "type": "object"
+    }
+  },
+  "payload_required_by_event": {
+    "OFFER_PRESENTED": [
+      "ui_hash",
+      "total_cost"
+    ],
+    "CONSENT_CAPTURED": [
+      "action_ref",
+      "offer_version"
+    ],
+    "FUNDS_DISBURSED": [
+      "lender_ref",
+      "amount"
+    ]
+  },
+  "additionalProperties": false
+}
