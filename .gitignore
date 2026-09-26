@@ -5,3 +5,5 @@ __pycache__/
 .venv/
 node_modules/
 coverage/
+*.jsonl
+*.jsonl.head

@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "支付信贷授权穿透账领域事件",
+  "description": "支付意图、优惠条件、界面版本、信贷要约、综合融资成本、适当性输入、授权动作、合同参与方、放款、收费、还款、催收与争议的不可覆盖事实目录。",
   "type": "object",
   "required": [
     "event_id",
@@ -20,10 +21,35 @@
       "type": "string",
       "enum": [
         "INTENT_CREATED",
+        "PAYMENT_CONFIRMED",
+        "UI_VERSION_PUBLISHED",
         "OFFER_PRESENTED",
+        "RULESET_DRAFTED",
+        "RULESET_APPROVED",
+        "SUITABILITY_EVALUATED",
         "CONSENT_CAPTURED",
+        "CONSENT_WITHDRAWN",
+        "CREDIT_LINE_OPENED",
+        "CREDIT_LIMIT_RELEASED",
+        "AGREEMENT_SIGNED",
+        "AGREEMENT_TERMS_CHANGED",
+        "AGREEMENT_RECONFIRMED",
         "FUNDS_DISBURSED",
-        "DISPUTE_OPENED"
+        "FEE_CHARGED",
+        "BILL_ISSUED",
+        "DEBIT_REQUESTED",
+        "DEBIT_SETTLED",
+        "DEBIT_REJECTED",
+        "COOLING_OFF_EXPIRED",
+        "BILL_DUE",
+        "ACCOUNT_OVERDUE",
+        "DISPUTE_WINDOW_CLOSED",
+        "COLLECTION_CASE_OPENED",
+        "COLLECTION_NOTICE_SENT",
+        "DISPUTE_OPENED",
+        "DISPUTE_RESOLVED",
+        "FREEZE_RAISED",
+        "FREEZE_LIFTED"
       ]
     },
     "aggregate_type": {
@@ -31,8 +57,16 @@
       "enum": [
         "payment_intent",
         "credit_offer",
+        "suitability_ruleset",
+        "suitability_assessment",
         "consent_record",
-        "fund_obligation"
+        "credit_line",
+        "credit_agreement",
+        "fund_obligation",
+        "repayment_bill",
+        "collection_case",
+        "dispute_case",
+        "compliance_freeze"
       ]
     },
     "aggregate_id": {
@@ -52,17 +86,192 @@
     }
   },
   "payload_required_by_event": {
-    "OFFER_PRESENTED": [
+    "INTENT_CREATED": [
+      "business_key",
+      "merchant_ref",
+      "amount",
+      "currency",
+      "incentive_snapshot"
+    ],
+    "PAYMENT_CONFIRMED": [
+      "business_key",
+      "action_ref",
+      "ui_hash"
+    ],
+    "UI_VERSION_PUBLISHED": [
       "ui_hash",
-      "total_cost"
+      "content_hash"
+    ],
+    "OFFER_PRESENTED": [
+      "business_key",
+      "ui_hash",
+      "offer_version",
+      "lender_ref",
+      "principal",
+      "total_cost",
+      "apr",
+      "fee_schedule"
+    ],
+    "RULESET_DRAFTED": [
+      "ruleset_version",
+      "drafted_by_role"
+    ],
+    "RULESET_APPROVED": [
+      "ruleset_version",
+      "approved_by_role"
+    ],
+    "SUITABILITY_EVALUATED": [
+      "business_key",
+      "ruleset_version",
+      "inputs_hash",
+      "input_fields",
+      "decision",
+      "evaluated_by_role"
     ],
     "CONSENT_CAPTURED": [
+      "business_key",
       "action_ref",
+      "offer_version",
+      "consent_kind",
+      "ui_hash"
+    ],
+    "CONSENT_WITHDRAWN": [
+      "business_key",
+      "reason"
+    ],
+    "CREDIT_LINE_OPENED": [
+      "business_key",
+      "limit",
+      "currency",
       "offer_version"
     ],
+    "CREDIT_LIMIT_RELEASED": [
+      "business_key",
+      "amount",
+      "retain_evidence"
+    ],
+    "AGREEMENT_SIGNED": [
+      "business_key",
+      "offer_version",
+      "parties",
+      "signed_at"
+    ],
+    "AGREEMENT_TERMS_CHANGED": [
+      "business_key",
+      "previous_offer_version",
+      "new_offer_version",
+      "changed_fields"
+    ],
+    "AGREEMENT_RECONFIRMED": [
+      "business_key",
+      "new_offer_version",
+      "action_ref"
+    ],
     "FUNDS_DISBURSED": [
+      "business_key",
+      "idempotency_key",
       "lender_ref",
-      "amount"
+      "amount",
+      "currency",
+      "offer_version"
+    ],
+    "FEE_CHARGED": [
+      "business_key",
+      "fee_type",
+      "amount",
+      "currency",
+      "party_ref"
+    ],
+    "BILL_ISSUED": [
+      "business_key",
+      "bill_seq",
+      "amount_due",
+      "currency",
+      "period_start",
+      "period_end",
+      "due_at"
+    ],
+    "DEBIT_REQUESTED": [
+      "business_key",
+      "idempotency_key",
+      "bill_seq",
+      "amount",
+      "currency",
+      "requested_by_role"
+    ],
+    "DEBIT_SETTLED": [
+      "business_key",
+      "idempotency_key",
+      "bill_seq",
+      "amount",
+      "currency"
+    ],
+    "DEBIT_REJECTED": [
+      "business_key",
+      "idempotency_key",
+      "bill_seq",
+      "reason"
+    ],
+    "COOLING_OFF_EXPIRED": [
+      "business_key"
+    ],
+    "BILL_DUE": [
+      "business_key",
+      "bill_seq"
+    ],
+    "ACCOUNT_OVERDUE": [
+      "business_key",
+      "bill_seq",
+      "overdue_days"
+    ],
+    "DISPUTE_WINDOW_CLOSED": [
+      "business_key",
+      "bill_seq"
+    ],
+    "COLLECTION_CASE_OPENED": [
+      "business_key",
+      "bill_seq",
+      "collector_ref",
+      "amount_outstanding"
+    ],
+    "COLLECTION_NOTICE_SENT": [
+      "business_key",
+      "case_ref",
+      "channel",
+      "template_version",
+      "notice_seq"
+    ],
+    "DISPUTE_OPENED": [
+      "business_key",
+      "reason",
+      "evidence_refs"
+    ],
+    "DISPUTE_RESOLVED": [
+      "business_key",
+      "resolution",
+      "resolved_at"
+    ],
+    "FREEZE_RAISED": [
+      "business_key",
+      "reason",
+      "evidence"
+    ],
+    "FREEZE_LIFTED": [
+      "business_key",
+      "reason"
+    ]
+  },
+  "business_keys": {
+    "description": "同一 business_key 贯穿一笔消费的意图、要约、评估、授权、合同、资金、账单、催收、争议；不同界面指纹或金额挂在同一键上即构成冲突冻结条件。",
+    "idempotency": [
+      "FUNDS_DISBURSED",
+      "DEBIT_REQUESTED",
+      "DEBIT_SETTLED",
+      "DEBIT_REJECTED"
+    ],
+    "consent_kinds": [
+      "payment_confirmation",
+      "credit_consent"
     ]
   },
   "additionalProperties": false

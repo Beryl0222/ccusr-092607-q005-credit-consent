@@ -2,8 +2,19 @@
   "event_id": "092601-005-sample-001",
   "event_type": "INTENT_CREATED",
   "aggregate_type": "payment_intent",
-  "aggregate_id": "credit_consent-001",
+  "aggregate_id": "pi-credit_consent-001",
   "occurred_at": "2026-09-25T10:00:00+08:00",
   "version": 1,
-  "payload": {}
+  "payload": {
+    "business_key": "BK-2026-0001",
+    "merchant_ref": "MERCHANT-88",
+    "amount": "199.00",
+    "currency": "CNY",
+    "incentive_snapshot": {
+      "incentive_id": "INSTANT-15",
+      "description": "首单立减15元",
+      "discount_amount": "15.00",
+      "conditions": "需开通月付"
+    }
+  }
 }
