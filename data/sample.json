@@ -2,8 +2,15 @@
   "event_id": "092601-005-sample-001",
   "event_type": "INTENT_CREATED",
   "aggregate_type": "payment_intent",
-  "aggregate_id": "credit_consent-001",
-  "occurred_at": "2026-09-25T10:00:00+08:00",
+  "aggregate_id": "intent-001",
+  "case_id": "case-2026-0926-0001",
+  "occurred_at": "2026-09-26T10:00:00+08:00",
   "version": 1,
-  "payload": {}
+  "business_key": "intent-0001",
+  "payload": {
+    "business_key": "intent-0001",
+    "amount": "88.00",
+    "currency": "CNY",
+    "ui_hash": "a1b2c3d4"
+  }
 }

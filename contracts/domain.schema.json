@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "支付信贷授权穿透账领域事件",
+  "title": "支付信贷授权穿透账领域事件信封",
+  "description": "每一条事件都是不可覆盖链路中的一环；case_id 贯通支付意图、优惠、界面、要约、适当性、授权、合同、放款、收费、还款、催收与异议。",
   "type": "object",
   "required": [
     "event_id",
@@ -11,6 +12,10 @@
     "version",
     "payload"
   ],
+  "case_id_required_unless_aggregate": [
+    "repayment_account",
+    "governance"
+  ],
   "properties": {
     "event_id": {
       "type": "string",
@@ -20,24 +25,49 @@
       "type": "string",
       "enum": [
         "INTENT_CREATED",
+        "PROMO_APPLIED",
+        "PAYMENT_CONFIRMED",
         "OFFER_PRESENTED",
+        "SUITABILITY_RULE_PUBLISHED",
+        "SUITABILITY_ASSESSED",
         "CONSENT_CAPTURED",
+        "CONTRACT_SIGNED",
+        "RECONFIRMATION_REQUIRED",
+        "CREDIT_REVOKED",
         "FUNDS_DISBURSED",
-        "DISPUTE_OPENED"
+        "FEE_CHARGED",
+        "REPAYMENT_DUE",
+        "BALANCE_REGISTERED",
+        "DEDUCTION_REQUESTED",
+        "REPAYMENT_MADE",
+        "PHASE_ADVANCED",
+        "NOTICE_SENT",
+        "DISPUTE_OPENED",
+        "DISPUTE_RESOLVED",
+        "CASE_FROZEN"
       ]
     },
     "aggregate_type": {
       "type": "string",
       "enum": [
+        "case_file",
         "payment_intent",
         "credit_offer",
         "consent_record",
-        "fund_obligation"
+        "credit_contract",
+        "fund_obligation",
+        "repayment_account",
+        "governance"
       ]
     },
     "aggregate_id": {
       "type": "string",
       "minLength": 1
+    },
+    "case_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "同一笔消费从支付意图到催收的贯通标识"
     },
     "occurred_at": {
       "type": "string",
@@ -47,23 +77,195 @@
       "type": "integer",
       "minimum": 1
     },
+    "business_key": {
+      "type": "string",
+      "minLength": 1,
+      "description": "调用方幂等键；同一业务键的重复提交只能返回首次结果，不得重复签约/放款/扣款"
+    },
     "payload": {
       "type": "object"
     }
   },
   "payload_required_by_event": {
-    "OFFER_PRESENTED": [
+    "INTENT_CREATED": [
+      "business_key",
+      "amount",
+      "currency",
+      "ui_hash"
+    ],
+    "PROMO_APPLIED": [
+      "promo_ref",
+      "condition_text",
+      "discount_amount",
+      "ui_hash"
+    ],
+    "PAYMENT_CONFIRMED": [
+      "action_ref",
       "ui_hash",
-      "total_cost"
+      "business_key"
+    ],
+    "OFFER_PRESENTED": [
+      "offer_version",
+      "ui_hash",
+      "principal",
+      "total_cost",
+      "apr",
+      "fee_breakdown",
+      "repayment_schedule",
+      "lender_ref",
+      "terms_hash"
+    ],
+    "SUITABILITY_RULE_PUBLISHED": [
+      "rule_version",
+      "approved_by_role",
+      "rules_hash"
+    ],
+    "SUITABILITY_ASSESSED": [
+      "rule_version",
+      "inputs_hash",
+      "decision",
+      "assessor_role"
     ],
     "CONSENT_CAPTURED": [
+      "consent_kind",
       "action_ref",
-      "offer_version"
+      "offer_version",
+      "ui_hash",
+      "terms_hash",
+      "explicit",
+      "business_key"
+    ],
+    "CONTRACT_SIGNED": [
+      "contract_ref",
+      "parties",
+      "offer_version",
+      "terms_hash",
+      "principal",
+      "total_cost",
+      "business_key"
+    ],
+    "RECONFIRMATION_REQUIRED": [
+      "reason",
+      "changed_fields",
+      "previous_terms_hash",
+      "new_terms_hash"
+    ],
+    "CREDIT_REVOKED": [
+      "unused",
+      "released_amount",
+      "reason"
     ],
     "FUNDS_DISBURSED": [
       "lender_ref",
-      "amount"
+      "amount",
+      "contract_ref",
+      "business_key"
+    ],
+    "FEE_CHARGED": [
+      "fee_type",
+      "amount",
+      "creditor_ref",
+      "business_key"
+    ],
+    "REPAYMENT_DUE": [
+      "bill_ref",
+      "due_amount",
+      "due_date"
+    ],
+    "BALANCE_REGISTERED": [
+      "available_amount",
+      "currency"
+    ],
+    "DEDUCTION_REQUESTED": [
+      "request_ref",
+      "amount",
+      "target_balance_ref",
+      "outcome",
+      "business_key"
+    ],
+    "REPAYMENT_MADE": [
+      "bill_ref",
+      "amount",
+      "business_key"
+    ],
+    "PHASE_ADVANCED": [
+      "from_phase",
+      "to_phase",
+      "effective_at"
+    ],
+    "NOTICE_SENT": [
+      "notice_kind",
+      "channel",
+      "template_ref",
+      "recipient_ref"
+    ],
+    "DISPUTE_OPENED": [
+      "reason",
+      "raised_by_ref"
+    ],
+    "DISPUTE_RESOLVED": [
+      "resolution",
+      "resolver_ref"
+    ],
+    "CASE_FROZEN": [
+      "reason",
+      "evidence"
     ]
+  },
+  "payload_enums": {
+    "consent_kind": [
+      "payment_confirmation",
+      "credit_agreement"
+    ],
+    "decision": [
+      "eligible",
+      "ineligible",
+      "manual_review"
+    ],
+    "notice_kind": [
+      "cooling_off",
+      "bill",
+      "overdue",
+      "collection",
+      "dispute_reply"
+    ],
+    "to_phase": [
+      "captured",
+      "cooling_off",
+      "active",
+      "billing",
+      "overdue",
+      "dispute",
+      "settled",
+      "revoked",
+      "frozen"
+    ]
+  },
+  "payload_enums_by_event": {
+    "RECONFIRMATION_REQUIRED": {
+      "reason": [
+        "terms_changed",
+        "party_changed",
+        "rate_changed"
+      ]
+    },
+    "CREDIT_REVOKED": {
+      "reason": [
+        "user_request"
+      ]
+    },
+    "CASE_FROZEN": {
+      "reason": [
+        "fingerprint_conflict",
+        "amount_conflict"
+      ]
+    },
+    "DEDUCTION_REQUESTED": {
+      "outcome": [
+        "settled",
+        "insufficient_funds"
+      ]
+    }
   },
   "additionalProperties": false
 }

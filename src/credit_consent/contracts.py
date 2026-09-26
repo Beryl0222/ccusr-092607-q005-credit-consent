@@ -30,9 +30,17 @@ def validate_event(payload: Any, schema: Mapping[str, Any]) -> list[ContractIssu
     for field in schema.get("required", []):
         if field not in payload:
             issues.append(ContractIssue(str(field), "required", "缺少必填字段"))
-    for field in ("event_id", "event_type", "aggregate_type", "aggregate_id"):
+    for field in ("event_id", "event_type", "aggregate_type", "aggregate_id", "case_id"):
         if field in payload and (not isinstance(payload[field], str) or not payload[field].strip()):
             issues.append(ContractIssue(field, "non_empty_string", "字段必须是非空字符串"))
+    aggregate_type = payload.get("aggregate_type")
+    exempt = schema.get("case_id_required_unless_aggregate", [])
+    if "case_id" not in payload and aggregate_type not in exempt:
+        issues.append(ContractIssue("case_id", "required", "案件事件必须携带贯通标识 case_id"))
+    if "business_key" in payload and (
+        not isinstance(payload["business_key"], str) or not payload["business_key"].strip()
+    ):
+        issues.append(ContractIssue("business_key", "non_empty_string", "业务键必须是非空字符串"))
     version = payload.get("version")
     if "version" in payload and (isinstance(version, bool) or not isinstance(version, int) or version < 1):
         issues.append(ContractIssue("version", "positive_integer", "版本必须是正整数"))
@@ -53,4 +61,14 @@ def validate_event(payload: Any, schema: Mapping[str, Any]) -> list[ContractIssu
         for field in schema.get("payload_required_by_event", {}).get(event_type, []):
             if field not in body:
                 issues.append(ContractIssue(f"payload.{field}", "required", "事件载荷缺少必填字段"))
+        for field, allowed in schema.get("payload_enums", {}).items():
+            if field in body and body[field] not in allowed:
+                issues.append(
+                    ContractIssue(f"payload.{field}", "unsupported_value", "载荷字段值未在契约中登记")
+                )
+        for field, allowed in schema.get("payload_enums_by_event", {}).get(event_type, {}).items():
+            if field in body and body[field] not in allowed:
+                issues.append(
+                    ContractIssue(f"payload.{field}", "unsupported_value", "载荷字段值未在契约中登记")
+                )
     return sorted(issues, key=lambda issue: (issue.field, issue.code))
